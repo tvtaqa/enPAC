@@ -1,0 +1,212 @@
+
+输出BA节点上的label：
+节点0的label:true
+节点0的isaccept:0
+节点0的isinitial:1
+节点1的label:!{t4_to_5,}
+节点1的isaccept:1
+节点1的isinitial:1
+节点2的label:!{t1_to_2,}&&!{t4_to_5,}
+节点2的isaccept:1
+节点2的isinitial:1
+节点3的label:true
+节点3的isaccept:1
+节点3的isinitial:0
+节点4的label:!{t1_to_2,}&&!{t4_to_5,}
+节点4的isaccept:1
+节点4的isinitial:0
+节点5的label:!{t4_to_5,}
+节点5的isaccept:1
+节点5的isinitial:0
+
+输出添加的迁移关系：
+N的RGname:M0 N的BAname:0
+遍历得到的RGname:M0 BAname:0
+
+
+
+输出添加的迁移关系：
+N的RGname:M0 N的BAname:3
+遍历得到的RGname:M0 BAname:3
+遍历得到的RGname:M0 BAname:0
+
+
+
+输出添加的迁移关系：
+N的RGname:M1 N的BAname:0
+遍历得到的RGname:M1 BAname:0
+遍历得到的RGname:M0 BAname:3
+遍历得到的RGname:M0 BAname:0
+ 上述满足条件,添加到T集合中,起点的id:1 终点的id:3
+
+
+
+输出添加的迁移关系：
+N的RGname:M1 N的BAname:3
+遍历得到的RGname:M1 BAname:3
+遍历得到的RGname:M1 BAname:0
+遍历得到的RGname:M0 BAname:3
+ 上述满足条件,添加到T集合中,起点的id:2 终点的id:4
+遍历得到的RGname:M0 BAname:0
+
+
+
+输出添加的迁移关系：
+N的RGname:M2 N的BAname:0
+遍历得到的RGname:M2 BAname:0
+遍历得到的RGname:M1 BAname:3
+遍历得到的RGname:M1 BAname:0
+遍历得到的RGname:M0 BAname:3
+遍历得到的RGname:M0 BAname:0
+ 上述满足条件,添加到T集合中,起点的id:1 终点的id:5
+
+
+
+输出添加的迁移关系：
+N的RGname:M2 N的BAname:3
+遍历得到的RGname:M2 BAname:3
+遍历得到的RGname:M2 BAname:0
+遍历得到的RGname:M1 BAname:3
+遍历得到的RGname:M1 BAname:0
+遍历得到的RGname:M0 BAname:3
+ 上述满足条件,添加到T集合中,起点的id:2 终点的id:6
+遍历得到的RGname:M0 BAname:0
+
+
+
+输出添加的迁移关系：
+N的RGname:M3 N的BAname:0
+遍历得到的RGname:M3 BAname:0
+遍历得到的RGname:M2 BAname:3
+遍历得到的RGname:M2 BAname:0
+遍历得到的RGname:M1 BAname:3
+遍历得到的RGname:M1 BAname:0
+ 上述满足条件,添加到T集合中,起点的id:3 终点的id:7
+遍历得到的RGname:M0 BAname:3
+遍历得到的RGname:M0 BAname:0
+
+
+
+输出添加的迁移关系：
+N的RGname:M3 N的BAname:3
+遍历得到的RGname:M3 BAname:3
+遍历得到的RGname:M3 BAname:0
+遍历得到的RGname:M2 BAname:3
+遍历得到的RGname:M2 BAname:0
+遍历得到的RGname:M1 BAname:3
+ 上述满足条件,添加到T集合中,起点的id:4 终点的id:8
+遍历得到的RGname:M1 BAname:0
+遍历得到的RGname:M0 BAname:3
+遍历得到的RGname:M0 BAname:0
+
+
+
+输出添加的迁移关系：
+N的RGname:M4 N的BAname:0
+遍历得到的RGname:M4 BAname:0
+遍历得到的RGname:M3 BAname:3
+遍历得到的RGname:M3 BAname:0
+遍历得到的RGname:M2 BAname:3
+遍历得到的RGname:M2 BAname:0
+ 上述满足条件,添加到T集合中,起点的id:5 终点的id:9
+遍历得到的RGname:M1 BAname:3
+遍历得到的RGname:M1 BAname:0
+ 上述满足条件,添加到T集合中,起点的id:3 终点的id:9
+遍历得到的RGname:M0 BAname:3
+遍历得到的RGname:M0 BAname:0
+
+
+
+输出添加的迁移关系：
+N的RGname:M4 N的BAname:3
+遍历得到的RGname:M4 BAname:3
+遍历得到的RGname:M4 BAname:0
+遍历得到的RGname:M3 BAname:3
+遍历得到的RGname:M3 BAname:0
+遍历得到的RGname:M2 BAname:3
+ 上述满足条件,添加到T集合中,起点的id:6 终点的id:10
+遍历得到的RGname:M2 BAname:0
+遍历得到的RGname:M1 BAname:3
+ 上述满足条件,添加到T集合中,起点的id:4 终点的id:10
+遍历得到的RGname:M1 BAname:0
+遍历得到的RGname:M0 BAname:3
+遍历得到的RGname:M0 BAname:0
+
+
+
+输出添加的迁移关系：
+N的RGname:M5 N的BAname:0
+遍历得到的RGname:M5 BAname:0
+遍历得到的RGname:M4 BAname:3
+遍历得到的RGname:M4 BAname:0
+遍历得到的RGname:M3 BAname:3
+遍历得到的RGname:M3 BAname:0
+遍历得到的RGname:M2 BAname:3
+遍历得到的RGname:M2 BAname:0
+ 上述满足条件,添加到T集合中,起点的id:5 终点的id:11
+遍历得到的RGname:M1 BAname:3
+遍历得到的RGname:M1 BAname:0
+遍历得到的RGname:M0 BAname:3
+遍历得到的RGname:M0 BAname:0
+
+
+
+输出添加的迁移关系：
+N的RGname:M5 N的BAname:3
+遍历得到的RGname:M5 BAname:3
+遍历得到的RGname:M5 BAname:0
+遍历得到的RGname:M4 BAname:3
+遍历得到的RGname:M4 BAname:0
+遍历得到的RGname:M3 BAname:3
+遍历得到的RGname:M3 BAname:0
+遍历得到的RGname:M2 BAname:3
+ 上述满足条件,添加到T集合中,起点的id:6 终点的id:12
+遍历得到的RGname:M2 BAname:0
+遍历得到的RGname:M1 BAname:3
+遍历得到的RGname:M1 BAname:0
+遍历得到的RGname:M0 BAname:3
+遍历得到的RGname:M0 BAname:0
+
+
+
+输出添加的迁移关系：
+N的RGname:M6 N的BAname:0
+遍历得到的RGname:M6 BAname:0
+遍历得到的RGname:M5 BAname:3
+遍历得到的RGname:M5 BAname:0
+ 上述满足条件,添加到T集合中,起点的id:11 终点的id:13
+遍历得到的RGname:M4 BAname:3
+遍历得到的RGname:M4 BAname:0
+ 上述满足条件,添加到T集合中,起点的id:9 终点的id:13
+遍历得到的RGname:M3 BAname:3
+遍历得到的RGname:M3 BAname:0
+遍历得到的RGname:M2 BAname:3
+遍历得到的RGname:M2 BAname:0
+遍历得到的RGname:M1 BAname:3
+遍历得到的RGname:M1 BAname:0
+遍历得到的RGname:M0 BAname:3
+遍历得到的RGname:M0 BAname:0
+
+
+
+输出添加的迁移关系：
+N的RGname:M6 N的BAname:3
+遍历得到的RGname:M6 BAname:3
+遍历得到的RGname:M6 BAname:0
+遍历得到的RGname:M5 BAname:3
+ 上述满足条件,添加到T集合中,起点的id:12 终点的id:14
+遍历得到的RGname:M5 BAname:0
+遍历得到的RGname:M4 BAname:3
+ 上述满足条件,添加到T集合中,起点的id:10 终点的id:14
+遍历得到的RGname:M4 BAname:0
+遍历得到的RGname:M3 BAname:3
+遍历得到的RGname:M3 BAname:0
+遍历得到的RGname:M2 BAname:3
+遍历得到的RGname:M2 BAname:0
+遍历得到的RGname:M1 BAname:3
+遍历得到的RGname:M1 BAname:0
+遍历得到的RGname:M0 BAname:3
+遍历得到的RGname:M0 BAname:0
+
+
+

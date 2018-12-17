@@ -1,0 +1,126 @@
+RG序号:0 BA序号:0 BA的label:true
+交为非false 生成节点
+
+RG序号:0 BA序号:1 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:0 BA序号:2 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:0 BA序号:3 BA的label:true
+交为非false 生成节点
+
+RG序号:0 BA序号:4 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:0 BA序号:5 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:1 BA序号:0 BA的label:true
+交为非false 生成节点
+
+RG序号:1 BA序号:1 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:1 BA序号:2 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:1 BA序号:3 BA的label:true
+交为非false 生成节点
+
+RG序号:1 BA序号:4 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:1 BA序号:5 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:2 BA序号:0 BA的label:true
+交为非false 生成节点
+
+RG序号:2 BA序号:1 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:2 BA序号:2 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:2 BA序号:3 BA的label:true
+交为非false 生成节点
+
+RG序号:2 BA序号:4 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:2 BA序号:5 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:3 BA序号:0 BA的label:true
+交为非false 生成节点
+
+RG序号:3 BA序号:1 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:3 BA序号:2 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:3 BA序号:3 BA的label:true
+交为非false 生成节点
+
+RG序号:3 BA序号:4 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:3 BA序号:5 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:4 BA序号:0 BA的label:true
+交为非false 生成节点
+
+RG序号:4 BA序号:1 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:4 BA序号:2 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:4 BA序号:3 BA的label:true
+交为非false 生成节点
+
+RG序号:4 BA序号:4 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:4 BA序号:5 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:5 BA序号:0 BA的label:true
+交为非false 生成节点
+
+RG序号:5 BA序号:1 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:5 BA序号:2 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:5 BA序号:3 BA的label:true
+交为非false 生成节点
+
+RG序号:5 BA序号:4 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:5 BA序号:5 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:6 BA序号:0 BA的label:true
+交为非false 生成节点
+
+RG序号:6 BA序号:1 BA的label:!{t4_to_5,}
+交为false
+
+RG序号:6 BA序号:2 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:6 BA序号:3 BA的label:true
+交为非false 生成节点
+
+RG序号:6 BA序号:4 BA的label:!{t1_to_2,}&&!{t4_to_5,}
+交为false
+
+RG序号:6 BA序号:5 BA的label:!{t4_to_5,}
+交为false
+
