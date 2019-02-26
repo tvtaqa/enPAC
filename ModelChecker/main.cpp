@@ -1,22 +1,118 @@
 #include"product.h"
+#include"xml2ltl.h"
 #include<fstream>
 #include<time.h>
+#include <unistd.h>
+#include <signal.h>
 using namespace std;
 
-int main()
+void  handler(int num)
 {
-	clock_t start, finish;
-	double totaltime;
-	start = clock();
+    printf("rg time out .\n");
+    exit(0);
+  
+}
 
+int main(int argc, char *argv[])
+{
+	cout<<"================================================="<<endl;
+	cout<<"=====This is our tool-enPAC for the MCC'2019====="<<endl;
+	cout<<"================================================="<<endl;
+	if(argc!=2)
+	{
+		cout<<"Wrong number of arguments!"<<endl;
+		return 0;
+	}
+	string str = argv[1];
+	signal(SIGALRM, handler);
+    alarm(3600);
+	
+	//XMLÂ½Ã¢ÃŽÃ¶Â£Âº
+	char Ffile[50] = "LTLFireability.xml";
+	char Cfile[50] = "LTLCardinality.xml";
+	convertf(Ffile);
+	convertc(Cfile);
 
-	ifstream read("a.txt", ios::in);
+	//StateSpace
 	ofstream outfile("reachablility.txt", ios::out);
+	ofstream outprint("ptnet.txt", ios::out);
+	char petrifile[20] = "model.pnml";
+	Petri ptnet;
+	RG graph;
+	
+	ptnet.readPNML(petrifile);
+	ptnet.getA();
+	
+	ptnet.UpperTriangularMatrix();
+
+	//ptnet.printA(outprint);
+
+	
+	graph.ReachabilityTree(ptnet);
+	graph.standardOutput(ptnet);
+	graph.PrintGraph(ptnet, outfile);
+	char ltlfile[25];
+	if(str == "StateSpace"){
+		return 0;
+	}
+	else if(str == "LTLFireability"){
+		strcpy(ltlfile, "LTLFireability.txt");
+	}
+	else if(str == "LTLCardinality") {
+		strcpy(ltlfile, "LTLCardinality.txt");
+	}
+				//LTLFireability checkÂ£Âº
+	string S, propertyid;	
+	char form[10000];
+	ifstream read(ltlfile, ios::in);
+	if (!read) { cout << "error!"; getchar(); exit(-1); }
+	int timeleft=alarm(0)/16;//ÃŠÂ£ÃÃ‚ÂµÃ„ÃŠÂ±Â¼Ã¤
+	cout<<"timeleft:"<<timeleft*16<<endl;
+	while (getline(read, propertyid, ':'))
+	{
+		
+		cout << propertyid << ':';
+		getline(read, S);
+		strcpy(form, S.c_str());
+		cout << endl;
+		Lexer lex(form, S.length());
+		//syntax analysis
+		Syntax_Tree ST;
+		formula_stack Ustack;
+		ST.reverse_polish(lex);
+		ST.build_tree();
+		ST.simplify_LTL(ST.root->left);
+		ST.negconvert(ST.root->left, Ustack);
+		TGBA Tgba;
+		Tgba.CreatTGBA(Ustack, ST.root->left);
+		Tgba.SimplifyStates();
+		TBA tba;
+		tba.CreatTBA(Tgba, Ustack);
+		string filename = propertyid + ".txt";
+		tba.PrintBuchi(filename);
+		SBA sba;
+		sba.CreatSBA(tba);
+		sba.Simplify();
+		sba.Compress();
+		//cout << "begin:ON-THE-FLY" << endl;
+		Product_Automata *product=new Product_Automata;
+		product->ModelChecker(ptnet, graph, sba,propertyid,timeleft);
+		delete product;
+	}
+	
+
+	return 0;
+}
+int main0()
+{
+	int timeleft;
+	ifstream read("a.txt", ios::in);
+	//ofstream outfile("reachablility.txt", ios::out);
 	if (!read) { cout << "error!"; getchar(); exit(-1); }
 	char form[100], p;
 	int i = 0;
-	string filename = "SBA.txt";//
-	char petrifile[20] = "model1234.pnml";//
+	string filename = "SBA.txt";
+	char petrifile[20] = "model.pnml";
 
 	Petri ptnet;
 	RG graph;
@@ -26,7 +122,8 @@ int main()
 	ptnet.getA();
 	ptnet.UpperTriangularMatrix();
 	graph.ReachabilityTree(ptnet);
-	graph.PrintGraph(ptnet, outfile);
+	graph.standardOutput(ptnet);
+	//graph.PrintGraph(ptnet, outfile);
 
 	while (true)
 	{
@@ -43,21 +140,21 @@ int main()
 	Lexer lex(form, i);
 	Syntax_Tree ST;
 	formula_stack Ustack;
-	CF_Tree CFT;// 
+
 	ST.reverse_polish(lex);
 	ST.build_tree();
-	cout << "The syntax tree of unsimplified formula£º" << endl;
+	cout << "The syntax tree of unsimplified formulaÂ£Âº" << endl;
 	ST.print_syntax_tree(ST.root, 0);
 	ST.simplify_LTL(ST.root->left);
 	cout << endl;
-	cout << "The syntax tree of simplified formula£º" << endl;
+	cout << "The syntax tree of simplified formulaÂ£Âº" << endl;
 	ST.print_syntax_tree(ST.root, 0);
 	ST.negconvert(ST.root->left, Ustack);
 	cout << endl;
-	cout << "The converted formula£º" << endl;
+	cout << "The converted formulaÂ£Âº" << endl;
 	cout << ST.root->left->formula << endl;
 	cout << endl;
-	cout << "The subformulas of LTL whose main operator is \'U\'£º" << endl;
+	cout << "The subformulas of LTL whose main operator is \'U\'Â£Âº" << endl;
 	vector<STNode>::iterator Uiter;
 	for (Uiter = Ustack.loc.begin(); Uiter != Ustack.loc.end(); Uiter++)
 	{
@@ -80,39 +177,5 @@ int main()
 	sba.Compress();
 
 	cout << "begin:product"<<endl;
-	product.ModelChecker(ptnet, graph, sba);
-	/*string S, propertyid;
-	while (getline(read, propertyid,':'))
-	{
-		cout << propertyid << ':' ;
-		getline(read, S);
-		strcpy_s(form, S.c_str());
-		cout << form << endl;
-		Lexer lex(form, S.length());
-		Syntax_Tree ST;
-		Transition T;
-		formula_stack Ustack;
-
-		ST.reverse_polish(lex);
-		//ST.print_reverse_polish();
-		ST.build_tree();
-		ST.print_syntax_tree(ST.root, 0);
-		ST.simplify_LTL(ST.root->left);
-		ST.print_syntax_tree(ST.root, 0);
-		ST.negconvert(ST.root->left,Ustack);
-		cout << ST.root->left->formula << endl;
-		T.creat_graph(ST.root->left);
-		BA buchi(T.nodes_num);
-		buchi.CreatBA(T, Ustack);
-		//buchi.State_Simplify(T);
-		//buchi.Compress();
-		propertyid = propertyid + ".txt";
-		buchi.PrintBuchi(propertyid);
-	}*/
-
-	finish = clock();
-	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
-	cout << "\n´Ë³ÌÐòµÄÔËÐÐÊ±¼äÎª" << totaltime << "Ãë" << endl;
-	
-	return 0;
+	product.ModelChecker(ptnet, graph, sba,"0",timeleft);
 }

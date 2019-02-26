@@ -2,7 +2,8 @@
 #include"TGBA.h"
 #include<fstream>
 #include<iomanip>
-#define MAX_VERTEX_NUM 100     //最大顶点（状态）数
+#include<cstring>
+#define MAX_VERTEX_NUM 1000     //最大顶点（状态）数
 #define Nofind -1
 
 class SBA;
@@ -12,8 +13,8 @@ void fullfill_info(set<string> transcondi, string &info);
 /*********************************************************************/
 typedef struct VertexType
 {
-	int name;                  //该顶点的名字
-	int num;                    //该顶点的编号0~r，r表示U子式的个数
+	int name=-1;                  //该顶点的名字
+	int num=-1;                    //该顶点的编号0~r，r表示U子式的个数
 } VertexType;                //用string类型来表示顶点（状态）
 typedef struct ArcNode
 {

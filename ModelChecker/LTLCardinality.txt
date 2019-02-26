@@ -1,0 +1,16 @@
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-00:(<>(X({token-count(ROUTE_A,)<=token-count(SORTI_A,)})))U(({token-count(SORTI_B,)<=token-count(CAPACITE,)})U({3<=token-count(VIDANGE_1,VIDANGE_2,)}))
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-01:<>([]({token-count(ATTENTE_A,)<=token-count(CONTROLEUR_1,CONTROLEUR_2,)}))
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-02:X([](<>({2<=token-count(ATTENTE_A,)})))
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-03:X({token-count(ROUTE_B,)<=token-count(CAPACITE,)})
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-04:(X({1<=token-count(CAPACITE,)}))U(({3<=token-count(ATTENTE_B,)})U({2<=token-count(CHOIX_1,CHOIX_2,)}))
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-05:(({1<=token-count(VIDANGE_1,VIDANGE_2,)})U({2<=token-count(CAPACITE,)}))U([]({token-count(ROUTE_B,)<=token-count(NB_ATTENTE_B_0,NB_ATTENTE_B_1,NB_ATTENTE_B_2,NB_ATTENTE_B_3,NB_ATTENTE_B_4,NB_ATTENTE_B_5,NB_ATTENTE_B_6,NB_ATTENTE_B_7,NB_ATTENTE_B_8,NB_ATTENTE_B_9,NB_ATTENTE_B_10,NB_ATTENTE_B_11,NB_ATTENTE_B_12,NB_ATTENTE_B_13,NB_ATTENTE_B_14,NB_ATTENTE_B_15,NB_ATTENTE_B_16,NB_ATTENTE_B_17,NB_ATTENTE_B_18,NB_ATTENTE_B_19,NB_ATTENTE_B_20,)}))
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-06:[]((X({token-count(SUR_PONT_A,)<=token-count(VIDANGE_1,VIDANGE_2,)}))U(X({2<=token-count(ATTENTE_A,)})))
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-07:(<>(X({token-count(SORTI_A,)<=token-count(ROUTE_A,)})))U({2<=token-count(NB_ATTENTE_B_0,NB_ATTENTE_B_1,NB_ATTENTE_B_2,NB_ATTENTE_B_3,NB_ATTENTE_B_4,NB_ATTENTE_B_5,NB_ATTENTE_B_6,NB_ATTENTE_B_7,NB_ATTENTE_B_8,NB_ATTENTE_B_9,NB_ATTENTE_B_10,NB_ATTENTE_B_11,NB_ATTENTE_B_12,NB_ATTENTE_B_13,NB_ATTENTE_B_14,NB_ATTENTE_B_15,NB_ATTENTE_B_16,NB_ATTENTE_B_17,NB_ATTENTE_B_18,NB_ATTENTE_B_19,NB_ATTENTE_B_20,)})
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-08:{token-count(COMPTEUR_18,)<=token-count(NB_ATTENTE_A_8,)}
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-09:[](<>({token-count(NB_ATTENTE_A_11,)<=token-count(CONTROLEUR_2,)}))
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-10:X((X({3<=token-count(SUR_PONT_A,)}))U({token-count(NB_ATTENTE_A_11,)<=token-count(COMPTEUR_1,)}))
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-11:{2<=token-count(SORTI_A,)}
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-12:{token-count(COMPTEUR_13,)<=token-count(COMPTEUR_3,)}
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-13:<>([](X(X({token-count(NB_ATTENTE_B_18,)<=token-count(COMPTEUR_16,)}))))
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-14:{token-count(NB_ATTENTE_B_18,)<=token-count(COMPTEUR_19,)}
+BridgeAndVehicles-PT-V20P10N20-LTLCardinality-15:<>(([]({token-count(NB_ATTENTE_A_6,)<=token-count(CONTROLEUR_2,)}))U(<>({token-count(COMPTEUR_11,)<=token-count(NB_ATTENTE_A_18,)})))

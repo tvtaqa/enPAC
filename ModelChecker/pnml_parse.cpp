@@ -1,22 +1,7 @@
 #include"pnml_parse.h"
 
-
-string itos(int n)
-{
-	string val = to_string(n);
-	return val;
-}
-int sum(int m[], int n)
-{
-	int sum = 0;
-	for (int i = 0; i < n; i++)
-	{
-		sum += m[i];
-	}
-	return sum;
-}
-
 /**************************Data_Structure*********************************/
+
 rgstack::rgstack()
 {
 	pointer = 0;
@@ -47,12 +32,14 @@ rgqueue::rgqueue()
 {
 	head = tail = 0;
 	elemnum = 0;
-	priset = new int[max_node_num];
+//	priset = new int[max_node_num];
+	vector<int> priset;
 }
 bool rgqueue::isEmpty()
 {
 	return ((head == tail) ? true : false);
 }
+/*
 void rgqueue::EnQueue(int num)
 {
 	if ((tail + 1) % max_node_num == head)
@@ -66,6 +53,7 @@ void rgqueue::EnQueue(int num)
 		tail = (tail + 1) % max_node_num;
 	}
 }
+
 void rgqueue::DeQueue(int &num)
 {
 	if (head != tail)
@@ -73,7 +61,7 @@ void rgqueue::DeQueue(int &num)
 		num = priset[head];
 		head = (head + 1) % max_node_num;
 	}
-}
+}*/
 /*****************************Data_Structure_End********************************/
 
 
@@ -83,34 +71,24 @@ Petri::Petri()
 	m = 0;   //库所数组指针
 	n = 0;    //变迁数组指针
 	arcnum = 0;  //弧数组指针
-	place = new Place[max_place_num];
-	transition = new Trans[max_tran_num];
-	arc = new Arc[max_arc_num];
-	A = new double *[max_tran_num];
-	A1 = new double *[max_tran_num];
-	A2 = new double *[max_tran_num];
-	for (int i = 0; i < max_tran_num; i++)
-	{
-		A[i] = new double[max_place_num];
-		A1[i] = new double[max_place_num];
-		A2[i] = new double[max_place_num];
-	}
-	for (int i = 0; i < max_tran_num; i++)            //initial
-	{
-		for (int j = 0; j < max_place_num; j++)
-		{
-			A[i][j] = A1[i][j] = A2[i][j] = 0;
-		}
-	}
 }
 
 RG::RG()
 {
 	node = 0;
 	edge = 0;
-	rgnode = new RGNode[max_node_num];	
 }
 
+
+void Petri::addPlace(Place p) {
+	place.push_back(p);
+}
+void Petri::addTransition(Transition t) {
+	transition.push_back(t);
+}
+void Petri::addArc(Arc a) {
+	arc.push_back(a);
+}
 void Petri::readPNML(char *filename) {
 	TiXmlDocument mydoc(filename);
 	bool loadOK = mydoc.LoadFile();
@@ -126,37 +104,52 @@ void Petri::readPNML(char *filename) {
 		petriElement = petriElement->NextSiblingElement())
 	{
 		if (petriElement->ValueTStr() == "place") {
-			place[m].num = m;
+			Place p;
+			p.num = m;
+
+			TiXmlAttribute *pnameElement = petriElement->FirstAttribute();
+			p.name = pnameElement->Value();
+
 			if (petriElement->FirstChildElement("initialMarking")) {
 				TiXmlElement *initialMarkingElement = petriElement->FirstChildElement("initialMarking")->FirstChildElement("text");
-				place[m].initialMarking = atoi(initialMarkingElement->GetText());
+				p.initialMarking = atoi(initialMarkingElement->GetText());
 			}
-			TiXmlElement *nameElement = petriElement->FirstChildElement("name")->FirstChildElement("text");
-			place[m].name = nameElement->GetText();
+		//	TiXmlElement *nameElement = petriElement->FirstChildElement("name")->FirstChildElement("text");
+		//	p.name = nameElement->GetText();
 			m++;
+			place.push_back(p);
 		}
 		if (petriElement->ValueTStr() == "transition") {
-			transition[n].num = n;
-			TiXmlElement *tnameElement = petriElement->FirstChildElement("name")->FirstChildElement("text");
-			transition[n].name = tnameElement->GetText();
+			Transition t;
+			t.num = n;
+//			TiXmlElement *tnameElement = petriElement->FirstChildElement("name")->FirstChildElement("text");
+//			t.name = tnameElement->GetText();
+			
+			TiXmlAttribute *tnameElement = petriElement->FirstAttribute();
+			t.name = tnameElement->Value();
+
 			n++;
+			transition.push_back(t);
 		}
 		if (petriElement->ValueTStr() == "arc") {
+			Arc a;
 			TiXmlAttribute *arcAttr = petriElement->FirstAttribute();
-			arc[arcnum].id = arcAttr->Value();
+			a.id = arcAttr->Value();
 			arcAttr = arcAttr->Next();
-			arc[arcnum].source = arcAttr->Value();
+			a.source = arcAttr->Value();
 			arcAttr = arcAttr->Next();
-			arc[arcnum].target = arcAttr->Value();
+			a.target = arcAttr->Value();
 			if (petriElement->FirstChildElement("inscription")) {
 				TiXmlElement *weightElement = petriElement->FirstChildElement("inscription")->FirstChildElement("text");
-				arc[arcnum].weight = atoi(weightElement->GetText());
+				a.weight = atoi(weightElement->GetText());
 			}
 			arcnum++;
+			arc.push_back(a);
 		}
 	}
 	for (int i = 0; i < arcnum; i++) {//对于每一条弧
 		for (int j = 0; j < n; j++) {//和变迁比
+
 			if (arc[i].source==transition[j].name) {
 				arc[i].sourceP = false;
 				arc[i].sourceNum = transition[j].num;
@@ -178,19 +171,42 @@ void Petri::readPNML(char *filename) {
 }
 
 void Petri::getA() {
+	A.resize(n);
+	for (int i = 0; i < n; i++) {
+		A[i].resize(m, 0);
+	}
+
+	A1.resize(n);
+	for (int i = 0; i < n; i++) {
+		A1[i].resize(m, 0);
+	}
+
+	A2.resize(n);
+	for (int i = 0; i < n; i++) {
+		A2[i].resize(m, 0);
+	}
+
 	for (int i = 0; i < arcnum; i++) {
 		if (arc[i].sourceP) {
 			A[arc[i].targetNum][arc[i].sourceNum]=-arc[i].weight;
 			A2[arc[i].targetNum][arc[i].sourceNum]= arc[i].weight;//输入矩阵
 		}
-
 		else{
 			A[arc[i].sourceNum][arc[i].targetNum]= arc[i].weight;
 			A1[arc[i].sourceNum][arc[i].targetNum]= arc[i].weight;//输出矩阵
 		}
 	}
-}
 
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if ((A1[i][j] == 1) && (A2[i][j] == 1)) {
+				A[i][j] = 2;
+			}
+		}
+	}
+
+
+}
 void Petri::printA() {
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
@@ -199,7 +215,6 @@ void Petri::printA() {
 		cout << endl;
 	}
 }
-
 void Petri::printA1() {
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
@@ -208,44 +223,54 @@ void Petri::printA1() {
 		cout << endl;
 	}
 }
-
-void Petri::printA2() {
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			cout << A2[i][j] << "  ";
-		}
-		cout << endl;
-	}
+string itos(int n)
+{
+	string val = to_string(n);
+	return val;
 }
 void Petri::exchange(double a[], double b[]) {//两行元素互换
 	double *temp;
-		temp = new double[m];
-		for (int i = 0; i < m; i++) {
-			temp[i] = a[i];
-			a[i] = b[i];
-			b[i] = temp[i];
-		}
+	temp = new double[m];
+	for (int i = 0; i < m; i++) {
+		temp[i] = a[i];
+		a[i] = b[i];
+		b[i] = temp[i];
 	}
+}
 void Petri::sub(double a[], double b[], double k) {//减法:a[]=a[]-k*b[]
 	for (int i = 0; i < m; i++) {
 		a[i] = a[i] - k * b[i];
 	}
 }
+
+int sum(int m[], int n)
+{
+	int sum = 0;
+	for (int i = 0; i < n; i++)
+	{
+		sum += m[i];
+	}
+	return sum;
+}
+
 void Petri::UpperTriangularMatrix() {
+	
 	double **B;
     B = new double*[n];
 	for (int k = 0; k < n; k++)
 	{
 		B[k] = new double[m];
 	}
+	
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
 			B[i][j] = A[i][j];
 		}
-	}
+	} 
+//	vector<vector<double>> B = A;
 	double multiple;//存储倍数关系
 	int site = 0;//site标记现在遍历的行号
-	for (int i = 0; i < m; i++) {//对于所有的列。i标记现在遍历的列号
+	for (int i = 0; (i < m)&&(site<n); i++) {//对于所有的列。i标记现在遍历的列号
 		if (B[site][i] == 0) {//如果该列第一个元素为0，则挑选一个不为零的分量，同时两行互换
 			for (int j = site + 1; j < n; j++) {
 				if (B[j][i] != 0) {
@@ -284,15 +309,17 @@ void Petri::UpperTriangularMatrix() {
 			}
 		}
 	}
+	
 	//打印significant库所个数
-	cout << "the num of significant places is:"<<signum << endl;
+	//cout << "the num of significant places is:"<<signum << endl;
 	/*打印上三角矩阵*/
-	for (int i = 0; i < n; i++) {
+	/*for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
 			cout << B[i][j] << "  ";
 		}
 		cout << endl;
 	}
+	*/
 
 	/*
 	求解线性方程组
@@ -309,6 +336,7 @@ void Petri::UpperTriangularMatrix() {
 		for (int i = 0; i < m; i++) {//一维数组初始化
 			solution[i] = -1;
 		}
+//		vector<int> solution(m, -1);
 		for (int i = 0; i < m; i++) {//注意flag=0语句的位置
 			if (place[i].sig == false) {//对于尾变量
 				if (flag == 0 && place[i].visited == false) {//如果是第一个尾变量，则赋值为1
@@ -323,14 +351,6 @@ void Petri::UpperTriangularMatrix() {
 				}
 			}
 		}
-		
-		//输出测试1
-		/*
-		for (int mark = 0; mark < m; mark++) {
-			cout << "solution" << solution[mark] << " ";
-		}
-		cout << endl;*/
-
 		sum = 0;
 		for (int j = signum - 1; j >= 0; j--) {//从下而上解方程，j标记方程所在行数
 			int ele;
@@ -345,71 +365,33 @@ void Petri::UpperTriangularMatrix() {
 			}
 			solution[ele] = -sum / B[j][ele];
 		}
-
-
-
-		/*
-		sum = 0;
-		for (int i = equ + 1; i < m; i++) {
-			sum += B[equ][i] * solution[i];
-		}
-		if (B[equ][equ] == 0) {
-			solution[equ] = 0;
-		}
-		else {
-			solution[equ] = -sum / B[equ][equ];
-		}*/
-
-		/*
-		for (int row = n > m ? m - 1: n - 1; row >= 0; row--) {//方程组由下而上求解
-			sum = 0;
-			if (solution[(m-1)-((n > m ? m - 1 : n - 1)-row)] != -1) {//solution的分量已经被尾变量赋值
-				x++;
-				continue;
-			}
-			else {
-				for (int i = 1; i <= x; i++) {
-					sum += solution[m - i] * B[row ][m - i];
-				}
-				if (B[row][m - 1 - x] == 0) {
-					solution[row] = 0;
-				}
-				else {
-					solution[row] = -sum / B[row][m - 1 - x];
-				}
-				x++;
-			}
-		}
-		*/
-		//输出测试2
-		/*
-		cout << "("<<equ+1<<")"<<"P-不变量：";
-		for (int i = 0; i < m; i++) {
-			cout << solution[i] << " ";
-		}
-		cout << endl;*/
-
-
 		for (int i = 0; i < m; i++) {
 			place[story].solution[i] = solution[i];
 		}
 	}
 }
-void RG::ReachabilityTree(Petri ptnet) {
-	int M0[max_place_num] = { 0 };
-	int M1[max_place_num] = { 0 };
-	int M[max_place_num] = { 0 };
+void RG::addRGNode(RGNode rg) {
+	rgnode.push_back(rg);
+}
+//不使用顽固集的可达图生成
+void RG::ReachabilityTree(Petri ptnet) {//PN生成可达树
+	vector<int> M(ptnet.m, 0);
+	vector<int> M0(ptnet.m, 0);//可达树根节点，即初始标识
+	vector<int> M1(ptnet.m, 0);
+	RGNode rgnode_temp;//临时节点，用于后续向rgnode中添加节点
+
 	//可达图的第一个节点（一个节点：初始标识）
 	for (int i = 0; i < ptnet.m; i++) {
-		M0[i] = ptnet.place[i].initialMarking;
-		rgnode[0].m[i] = M0[i];
+		M0[i] = ptnet.place[i].initialMarking;//根据initialmarking产生初始标识
+		rgnode_temp.m[i] = M0[i];//临时节点赋值
 	}
-	rgnode[0].name = "M0";
+	rgnode_temp.name = "M0";
+	addRGNode(rgnode_temp);//结点列表中增加第一个节点
 	node++;
 	//判断结点列表中还存在没有标记的节点
 	int newNode;
 	bool exist;
-	while (1) 
+	while (1)
 	{
 		for (int i = 0; i < node; i++)
 		{
@@ -433,54 +415,64 @@ void RG::ReachabilityTree(Petri ptnet) {
 		//if 在M下所有变迁都不能发生
 		bool enable;
 		int enableNumber = 0;
-		for (int i = 0; i < ptnet.n; i++) 
+		for (int i = 0; i < ptnet.n; i++)
 		{//对于所有的变迁
 			enable = true;
-			for (int j = 0; j < ptnet.m; j++) 
+			for (int j = 0; j < ptnet.m; j++)
 			{
-				if (M[j] < ptnet.A2[i][j]) 
+				if (M[j] < ptnet.A2[i][j])
 				{//变迁ti不能发生
 					enable = false;
 					break;
 				}
 			}
 			//变迁从t0开始编号
-			if (enable) 
+			if (enable)
 			{//变迁ti可以发生
 				rgnode[newNode].isfirable[enableNumber] = i;
 				rgnode[newNode].enableNum++;
 				enableNumber++;
 			}
 		}
-		if (rgnode[newNode].enableNum == 0) 
+		if (rgnode[newNode].enableNum == 0)
 		{//如果变迁不能发生则跳出本次循环
 			continue;
 		}
 		//对于每个在M下可发生的变迁
-		for (int i = 0; i < rgnode[newNode].enableNum; i++) 
+		for (int i = 0; i < rgnode[newNode].enableNum; i++)
 		{
 			//可发生变迁ti的编号i为hang
 			//计算M1
 			for (int j = 0; j < ptnet.m; j++) {
 				int hang = rgnode[newNode].isfirable[i];
-				M1[j] = M[j] + ptnet.A[hang][j];
+				if (ptnet.A[hang][j] == 2) {
+					M1[j] = M[j];
+				}
+				else {
+					M1[j] = M[j] + ptnet.A[hang][j];
+				}
+
 			}
-			RGNode G;
-			memcpy(G.m, M1, sizeof(int)*ptnet.m);
-			G.inset.push(newNode);
-			/*if (isBoundless(ptnet, &G))
-			{
-				cerr << "The petri net is boundless!" << endl;
-				exit(-1);
-			}*/
-			//if结点列表中出现过M1
+			RGNode G;//G节点来存储M1的信息
+			for (int i = 0; i < ptnet.m; i++) {
+				G.m[i] = M1[i];
+			}
+			//		G.m = M1;
+			//		memcpy(G.m, M1, sizeof(int)*ptnet.m);
+			//		G.inset.push(newNode);//这里报错了，先暂时注释掉
+					/*if (isBoundless(ptnet, &G))
+					{
+						cerr << "The petri net is boundless!" << endl;
+						exit(-1);
+					}*/
+					//if结点列表中出现过M1
 			bool repeated;
 			int ii;
 			bool repexist = false;
-			for (ii = 0; ii < node; ii++) 
+			for (ii = 0; ii < node; ii++)
 			{
 				repeated = true;
-				for (int jj = 0; jj < ptnet.m; jj++) 
+				for (int jj = 0; jj < ptnet.m; jj++)
 				{
 					if (M1[jj] != rgnode[ii].m[jj]) {
 						repeated = false;
@@ -496,7 +488,7 @@ void RG::ReachabilityTree(Petri ptnet) {
 					pEdge->nextedge = NULL;
 					pEdge->t = rgnode[newNode].isfirable[i];
 					pEdge->target = ii;
-					rgnode[ii].inset.push(newNode);
+					//	rgnode[ii].inset.push(newNode);
 					RGNode *p;
 					p = &rgnode[newNode];
 					pEdge->nextedge = p->firstEdge;
@@ -505,14 +497,10 @@ void RG::ReachabilityTree(Petri ptnet) {
 				}
 			}
 			//若M1是没有出现过的新状态
-		    if(!repexist) {
-				//则引入新节点rgnode[node]，即M1。
-				for (int i = 0; i < ptnet.m; i++) {
-					rgnode[node].m[i] = M1[i];
-				}
-				rgnode[node].flag = 0;
-				rgnode[node].name = "M" + itos(node);
-				rgnode[node].inset.push(newNode);
+			if (!repexist) {
+				//则引入新节点M1
+				G.name = "M" + itos(node);
+				addRGNode(G);
 				//graph.rgnode[graph.node].t = graph.rgnode[newNode].isfirable[i];//00000000
 				//并把新节点加到邻接表边表上
 				RGNode *p;
@@ -524,6 +512,7 @@ void RG::ReachabilityTree(Petri ptnet) {
 				p = &rgnode[newNode];
 				pEdge->nextedge = p->firstEdge;
 				p->firstEdge = pEdge;
+
 				node++;
 			}
 		}
@@ -536,13 +525,13 @@ void RG::ReachabilityTree(Petri ptnet) {
 		}
 	}
 }
-
-void RG::ModifyMarking() {
-	//修改可达图标识
-	
+//比赛标准输出格式
+void RG::standardOutput(Petri ptnet) {
+	cout << "STATE_SPACE " << "STATES " << node << endl;
+	cout << "STATE_SPACE " << "TRANSITIONS " << ptnet.n << endl;
 }
 
-
+//可达图生成到文件中
 void RG::PrintGraph(Petri ptnet, ofstream &outfile)
 {
 	outfile << "可达图节点个数" << node << endl;
@@ -566,24 +555,28 @@ void RG::PrintGraph(Petri ptnet, ofstream &outfile)
 	}
 }
 
-bool RG::isBoundless(Petri ptnet, RGNode *curs)//还没用到判断无界
-{
-	rgqueue  ancestors;
-	int count = curs->inset.pointer;
-	for (int i = 0; i < count; i++)
-		ancestors.EnQueue(curs->inset.incoming[i]);
-	while (!ancestors.isEmpty())
-	{
-		int pri;
-		ancestors.DeQueue(pri);
-		//检查curs是否大于rgnode[pri]
-		if (sum(curs->m, ptnet.m) > sum(rgnode[pri].m, ptnet.m))
-		{
-			return true;
-		}
-		for (int j = 0; j < rgnode[pri].inset.pointer; j++)
-			ancestors.EnQueue(rgnode[pri].inset.incoming[j]);
+
+
+void evaluate(int a[], int b[], int num) {
+	for (int i = 0; i < num; i++) {
+		a[i] = b[i];
 	}
-	return false;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+以下内容删掉
+
+*/
 

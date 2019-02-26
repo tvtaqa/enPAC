@@ -1,8 +1,12 @@
+
 #include "product.h"
+#define FILE_BUFFER_LENGTH 30000
 #include <fstream>
+#include <unistd.h>
+#include <signal.h>
 
 /******************************Global_fucntions*********************************/
-bool judgeF(string s)//ÅĞ¶ÏÊÇF»¹ÊÇcÃüÌâ 
+bool Product_Automata::judgeF(string s)//ÅĞ¶ÏÊÇF»¹ÊÇcÃüÌâ 
 {
 	int pos = s.find("<=");
 	if (pos == string::npos)
@@ -11,7 +15,7 @@ bool judgeF(string s)//ÅĞ¶ÏÊÇF»¹ÊÇcÃüÌâ
 	}
 	else return false;          //cÃüÌâ 
 }
-int convert(RG rg, Petri ptnet, int i, int j)//rgnode[i].m[j]
+int Product_Automata::convert( int i, int j)//rgnode[i].m[j]
 {
 	int x = 0;
 	int sum1 = 0;
@@ -21,9 +25,9 @@ int convert(RG rg, Petri ptnet, int i, int j)//rgnode[i].m[j]
 	{
 		sum1 += ptnet.place[j].solution[ii] * rg.rgnode[0].m[ii];
 		//cout << "ptnet.place["<<j<<"].solution["<<ii<<"]: " << ptnet.place[j].solution[ii]<<endl;
-		cout << "rg.rgnode[0].m[" << ii << "]: " << rg.rgnode[0].m[ii] << endl;
+		//cout << "rg.rgnode[0].m[" << ii << "]: " << rg.rgnode[0].m[ii] << endl;
 	}
-	cout << "sum1:" << sum1 << endl;
+	//cout << "sum1:" << sum1 << endl;
 	for (int jj = 0; jj < ptnet.m; jj++)
 	{
 		if (jj == j)
@@ -31,14 +35,14 @@ int convert(RG rg, Petri ptnet, int i, int j)//rgnode[i].m[j]
 		else
 			sum2 += ptnet.place[j].solution[jj] * rg.rgnode[i].m[jj];
 	}
-	cout << "sum2:" << sum2 << endl;
+	//cout << "sum2:" << sum2 << endl;
 	x = (sum1 - sum2) / ptnet.place[j].solution[j];
 
 	return x;
 }
 
 
-int sumtoken(Petri ptnet, RG rg, string s, int statenum)//¼ÆËã¿âËùµÄtokenµÄºÍ ´«¹ıÀ´µÄsÊÇ  p1,p2,p3,p4,  µÄĞÎÊ½   
+int Product_Automata::sumtoken( string s, int statenum)//¼ÆËã¿âËùµÄtokenµÄºÍ ´«¹ıÀ´µÄsÊÇ  p1,p2,p3,p4,  µÄĞÎÊ½   
 {
 	int sum = 0;
 	while (1)
@@ -60,9 +64,8 @@ int sumtoken(Petri ptnet, RG rg, string s, int statenum)//¼ÆËã¿âËùµÄtokenµÄºÍ ´«
 				else//ÈôÎª-100 ÔòĞèÒª×ª»¯  
 				{
 					int x;
-
-					x = convert(rg, ptnet, statenum, idex);//statenum¾ÍÊÇi   idex¾ÍÊÇj
-					cout << "×ª»¯µÃµ½x: " << x << endl << endl;
+					x = convert(statenum, idex);//statenum¾ÍÊÇi   idex¾ÍÊÇj
+					//cout << "×ª»¯µÃµ½x: " << x << endl << endl;
 					sum += x;
 
 				}
@@ -73,40 +76,14 @@ int sumtoken(Petri ptnet, RG rg, string s, int statenum)//¼ÆËã¿âËùµÄtokenµÄºÍ ´«
 	}
 	return sum;
 }
-int localBA(SBA ba, string val)//¸ù¾İdata  ·µ»Ø×Ô¶¯»ú ÁÚ½Ó±íµÄÏÂ±ê 
-{
-	for (int i = 0; i < ba.svex_num; i++)
-	{
-		if (itos(ba.svertics[i].data) == val)
-			return i;
-	}
-	return -1;//ÕÒ²»µ½Ôò·µ»Ø-1 
-}
-int localRG(RG rg, string val)//¸ù¾İdata  ·µ»Ø¿É´ïÍ¼ ÁÚ½Ó±íµÄÏÂ±ê 
-{
-	for (int i = 0; i < rg.node; i++)
-	{
-		if (val == rg.rgnode[i].name)
-			return i;
-		//½«intÊı×é×¨³Éstring ÔÙ½øĞĞ±È½Ï 
-		/*string str="";
-		for(int k=0;k<5;k++)//½«intÊı×é×¨³Éstring
-		{
-		str+=to_String(  rg.rgnode[i].m[k]   );
-		}
 
-		if(str==val)
-		return i;*/
-	}
-	return -1;//ÕÒ²»µ½Ôò·µ»Ø-1 
-}
-bool handleFLTLF(Petri ptnet, RG rg, string s, int statenum)//´¦ÀíFÃüÌâ  
+bool Product_Automata::handleFLTLF( string s, int statenum)//´¦ÀíFÃüÌâ  
 {
 	int i, j;//whileÑ­»·±äÁ¿ 
 	if (s[0] == '!')//ÔÚÔ­ÃüÌâµÄ»ù´¡ÉÏ ÔÙÈ¡·Ç
 	{
 
-		s = s.substr(2, s.length() - 1);//È¥³ı !, { 
+		s = s.substr(2, s.length() - 2);//È¥³ı !, { 
 		bool flag = true;             //³õÊ¼ÉèÎªtrue  
 		while (1)
 		{
@@ -128,7 +105,7 @@ bool handleFLTLF(Petri ptnet, RG rg, string s, int statenum)//´¦ÀíFÃüÌâ
 						}
 					}
 					if (j >= rg.rgnode[statenum].enableNum) {
-						flag = false;//isfirableÊı×éÖĞÃ»ÕÒµ½ ÔòÉèÎªtrue ²¢Ìø³öÑ­»· 
+						flag = false;//isfirableÊı×éÖĞÃ»ÕÒµ½ ÔòÉèÎªfalse ²¢Ìø³öÑ­»· 
 					}
 					break; //Ãû×Ö¶ÔÓ¦µÄ¿Ï¶¨Ö»ÓĞÒ»¸ö ²»ÖØÃû  
 				}
@@ -143,6 +120,7 @@ bool handleFLTLF(Petri ptnet, RG rg, string s, int statenum)//´¦ÀíFÃüÌâ
 			s = s.substr(pos + 1, s.length() - pos);
 		}
 		return flag;
+		//È«ÕÒµ½Îªtrue  ·´Ö®Îªfalse
 	}
 	else
 	{
@@ -168,7 +146,7 @@ bool handleFLTLF(Petri ptnet, RG rg, string s, int statenum)//´¦ÀíFÃüÌâ
 							break;
 						}
 					}
-					if (j >= 30) {
+					if (j >= rg.rgnode[statenum].enableNum) {
 						flag = true;//isfirableÊı×éÖĞÃ»ÕÒµ½ 
 					}
 					break; //Ãû×Ö¶ÔÓ¦µÄ¿Ï¶¨Ö»ÓĞÒ»¸ö ²»ÖØÃû  
@@ -183,25 +161,26 @@ bool handleFLTLF(Petri ptnet, RG rg, string s, int statenum)//´¦ÀíFÃüÌâ
 			s = s.substr(pos + 1, s.length() - pos);
 		}
 		return flag;
+		//È«ÕÒ²»µ½Îªfalse  
 	}
 }
-void handleLTLCstep(Petri ptnet, RG rg, int &front_sum, int &latter_sum, string s, int statenum)
+void Product_Automata::handleLTLCstep(int &front_sum, int &latter_sum, string s, int statenum)
 {
 	if (s[0] == 't')//ÔòÇ°°ë²¿·ÖÎªtoken-countĞÎÊ½  
 	{
 		int pos = s.find_first_of("<=");//¶¨Î»µ½<=,È¡ÆäÇ°°ë²¿·Ö  
 		string s_tokon = s.substr(12, pos - 13);//È¥³ı "token-count(" ")"  Ö»Ê£p1,p2,    
 		//cout<<" "<<s_tokon<<" ";
-		front_sum = sumtoken(ptnet, rg, s_tokon, statenum);//¼ÆËãtokenµÄºÏ 
+		front_sum = sumtoken(s_tokon, statenum);//¼ÆËãtokenµÄºÏ 
 
 		//¼ÆËãºó°ë²¿·Ö  
 		s = s.substr(pos + 2, s.length() - pos - 2); //È¡µÃºó°ë²¿·Ö  ÈôÊÇ³£Êı ÔòºóÃæÊÇÒ»¸ö°à³£Êı¼ÓÉÏÒ»¸ö'}'
 
 		if (s[0] == 't')//Èôºó°ë²¿·Ö»¹ÊÇtoken-count 
 		{
-			string s_tokon = s.substr(12, pos - 13);//È¥³ı token-count(
+			string s_tokon = s.substr(12, s.length() - 14);//È¥³ı token-count(
 		//	cout<<" "<<s_tokon<<" ";
-			latter_sum = sumtoken(ptnet, rg, s_tokon, statenum);//ÏàÍ¬´¦Àí 
+			latter_sum = sumtoken(s_tokon, statenum);//ÏàÍ¬´¦Àí 
 
 		}
 		else//ºó°ë²¿·ÖÊÇ³£Êı 
@@ -221,12 +200,12 @@ void handleLTLCstep(Petri ptnet, RG rg, int &front_sum, int &latter_sum, string 
 		//	 cout<< " "<<front_sum<<" ";
 
 			 //´¦Àíºó°ë²¿·Ö
-		s = s.substr(pos + 14, s.length() - pos - 15);
+		s = s.substr(pos + 14, s.length() - pos - 16);
 		//	 cout<<" "<<s<<" ";
-		latter_sum = sumtoken(ptnet, rg, s, statenum);
+		latter_sum = sumtoken(s, statenum);
 	}
 }
-bool handleLTLC(Petri ptnet, RG rg, string s, int statenum, ofstream &ofe)//´¦ÀíCÃüÌâ  
+bool Product_Automata::handleLTLC(string s, int statenum)//´¦ÀíCÃüÌâ  
 {
 	int front_sum, latter_sum;//Ç°°ë²¿·ÖºÍ ºó°ë²¿·ÖµÄºÏ 
 	if (s[0] == '!')//ÃüÌâÎª·Ç ÔÙÈ¡·Ç
@@ -234,8 +213,8 @@ bool handleLTLC(Petri ptnet, RG rg, string s, int statenum, ofstream &ofe)//´¦Àí
 		//	cout<<" ·Ç ";
 		s = s.substr(2, s.length() - 2);//È¥³ı "!{" 
 	//	cout<<s;
-		handleLTLCstep(ptnet, rg, front_sum, latter_sum, s, statenum);
-		ofe << "Ç°°ë²¿·ÖºÍ£º" << front_sum << " ºó°ë²¿·ÖºÍ£º" << latter_sum << endl;
+		handleLTLCstep(front_sum, latter_sum, s, statenum);
+		//ofe << "Ç°°ë²¿·ÖºÍ£º" << front_sum << " ºó°ë²¿·ÖºÍ£º" << latter_sum << endl;
 		if (front_sum <= latter_sum)
 			return true;
 		else
@@ -247,8 +226,8 @@ bool handleLTLC(Petri ptnet, RG rg, string s, int statenum, ofstream &ofe)//´¦Àí
 		//	cout<<" Õı ";
 		s = s.substr(1, s.length() - 1);//È¥³ı "{"
 	//	cout<<" "<<s;
-		handleLTLCstep(ptnet, rg, front_sum, latter_sum, s, statenum);
-		ofe << "Ç°°ë²¿·ÖºÍ£º" << front_sum << " ºó°ë²¿·ÖºÍ£º" << latter_sum << endl;
+		handleLTLCstep( front_sum, latter_sum, s, statenum);
+		//ofe << "Ç°°ë²¿·ÖºÍ£º" << front_sum << " ºó°ë²¿·ÖºÍ£º" << latter_sum << endl;
 		if (front_sum <= latter_sum)
 			return false;
 		else
@@ -256,19 +235,16 @@ bool handleLTLC(Petri ptnet, RG rg, string s, int statenum, ofstream &ofe)//´¦Àí
 	}
 }
 /****************************Global_fucntions End*******************************/
-
-set<Product>::iterator it_P;       //¶¨ÒåÇ°Ïòµü´úÆ÷ 
-set<T>::iterator it_T;                  //¶¨ÒåÇ°Ïòµü´úÆ÷ 
-set<int>::iterator it;                   //¶¨ÒåÇ°Ïòµü´úÆ÷ 
-int cont;                                  //½»×Ô¶¯»úµÄĞòºÅ
-node edge[3001];
-//int DFN[3001], LOW[3001];//Á´Ê½Ç°ÏòĞÇ´æ´¢ĞèÒªµÄÁ½¸öÊı×é;DFNÄ¬ÈÏÎª0£¬¼´Î´·ÃÎÊ¹ı 
-int stk[3001], stk2[3001], belg[3001], low[3001], heads[3001], tot;;
 bool result;
-//int stack[3001], heads[3001], visit[3001], cnt, tot, index;
-int n, m, cn, cm, scc, lay;
-//stack[]´æ´¢ÈëÕ»µÄ½Úµã head[i]Êı×é´æ´¢i½ÚµãÖ¸ÏòµÄµÚÒ»¸ö½Úµã 
-//visit[]±ê¼ÇÊÇ·ñÈëÕ»  	
+bool timeflag;//ÅĞ¶ÏÊÇ·ñ³¬Ê± 
+
+void  sig_handler(int num)
+{
+    printf("time out .\n");
+    timeflag=false;
+  
+}
+
 
 string to_String(int n)//º¯Êı½«int×ª»»³Éstring 
 {
@@ -297,9 +273,39 @@ string to_String(int n)//º¯Êı½«int×ª»»³Éstring
 	return ss;
 }
 
-void Product_Automata::getProduct(Petri ptnet, RG rg, SBA ba)//´«Èë¿É´ïÍ¼ºÍ×Ô¶¯»ú 
+void hashtable::insert(Product q)
 {
-	ofstream outfile("getproduct.txt", ios::out);
+	int idex = hashfunction(q.BAname_id+q.RGname_id);
+
+	table[idex].push_back(q);
+}
+
+int hashtable::hashfunction(int   s)
+{
+	return (s) % hash_table_num;
+}
+
+int hashtable::search(Product  n)
+{
+	int idex = hashfunction(n.BAname_id+n.RGname_id);
+	for (int i = 0; i < table[idex].size(); ++i)
+	{
+		if ( table[idex][i].BAname_id == n.BAname_id 
+			&& table[idex][i].RGname_id == n.RGname_id)
+		{
+			//cout<< table[idex][i].first<<endl;
+			return 1;
+		}
+	}
+	//cout << "find not" << s << "  in hash" << endl;
+	return -1;
+}
+
+
+void Product_Automata::getProduct()//´«Èë¿É´ïÍ¼ºÍ×Ô¶¯»ú 
+{
+	
+	/*ofstream outfile("getproduct.txt", ios::out);
 	ofstream ofe("islabel.txt", ios::out);
 	outfile << endl;
 	outfile << "Êä³öBA½ÚµãÉÏµÄlabel£º\n";
@@ -311,117 +317,151 @@ void Product_Automata::getProduct(Petri ptnet, RG rg, SBA ba)//´«Èë¿É´ïÍ¼ºÍ×Ô¶¯»
 
 
 	}
-	outfile << endl;
-	cont = 1;
-	for (int i = 0; i < rg.node; i++)//±éÀú¿É´ïÍ¼Ã¿Ò»¸ö½Úµã
+	outfile << endl;*/
+	
+	addinitial_status();   
+	//cout << "³õÊ¼½Úµã¸öÊı£º" << initial_status.size()<<endl;
+	vector<Product>::iterator it_P;       //¶¨ÒåÇ°Ïòµü´úÆ÷ 
+	for (it_P = initial_status.begin(); it_P != initial_status.end(); it_P++)
 	{
-		for (int j = 0; j < ba.svex_num; j++)//±éÀú×Ô¶¯»úÃ¿Ò»¸ö½Úµã
-		{
-			if (isLabel(ptnet, rg, ba, i, j, ofe))                                  //ÃüÌâ½»¼¯·Ç¿Õ   
-			{
-
-				Product N;                                   //Éú³ÉÒ»¸ö×´Ì¬½ÚµãN 
-				N.BAname = itos(ba.svertics[j].data);       //×Ô¶¯»ú 
-				N.RGname = rg.rgnode[i].name;    //¿É´ïÍ¼
-				N.id = cont++;                              //½»×Ô¶¯»úµÄĞòºÅ+1 
-				addstatus(N);                               //Ôö¼Ó½»×Ô¶¯»úµÄ×´Ì¬ 
-				outfile << "Êä³öÌí¼ÓµÄÇ¨ÒÆ¹ØÏµ£º\n";
-				addtransition(rg, ba, i, j, N, outfile);                  //Ôö¼ÓÇ¨ÒÆ×´Ì¬ 
-				addinitial_status(ba,i, j, N);                  //Ôö¼Ó³õÊ¼×´Ì¬ 
-				addisaccept(ba, j, N);                         //Ôö¼Ó¿É½ÓÊÜ×´Ì¬ 
-			}
-		}
+		//cout << "chushi:" << endl;
+		dfs1((*it_P));
+		
+		if (!result || !timeflag)break;
 	}
 }
 
-void Product_Automata::addstatus(Product n)//Ôö¼Ó½»×Ô¶¯»úµÄ×´Ì¬ 
+
+
+void Product_Automata::dfs1(Product q)
 {
-	status.insert(n);//ĞÂÔö×´Ì¬½Úµã ¼ÓÈë×´Ì¬¼¯ºÏÖĞ 
-}
+	if(!timeflag)return ;
+	h.insert(q);//¼ÓÈë¹şÏ£±í
+	stack.push_back(q);//¼ÓÈëdfs1 µÄ stackÖĞ
+	SArcNode *pba = new SArcNode;        //Ö¸ÏòBa×Ô¶¯»úµÄÁÚ½Ó±íµÄ½Úµã (·ÇÍ·½Úµã) 
+	PRGEdge prg = new RGEdge;          //Ö¸Ïò¿É´ïÍ¼ÁÚ½Ó±íµÄ½Úµã
+	pba = ba.svertics[q.BAname_id].firstarc;
+	prg = rg.rgnode[q.RGname_id].firstEdge;//prgÖ¸Ïòidex½ÓÏÂÈ¥µÄµÚÒ»¸ö½Úµã 
 
-void Product_Automata::addtransition(RG rg, SBA ba, int i, int j, Product n, ofstream &outfile)    //Ôö¼Ó½»×Ô¶¯»úµÄÇ¨ÒÆ×´Ì¬ 
-{
 
-	SArcNode *pba;        //Ö¸ÏòBa×Ô¶¯»úµÄÁÚ½Ó±íµÄ½Úµã (·ÇÍ·½Úµã) 
-	PRGEdge prg;          //Ö¸Ïò¿É´ïÍ¼ÁÚ½Ó±íµÄ½Úµã
-	bool flag_v, flag_s;    //±ê¼ÇÊÇ·ñÕÒµ½¶ÔÓ¦µÄ±ß 
-
-	outfile << "NµÄRGname:" << n.RGname << " NµÄBAname:" << n.BAname << endl;
-	//ÔÚÒÑÓĞµÄ³Ë»ıÖĞ ±éÀúÑ°ÕÒ·ûºÏÒªÇóµÄÄ³¸ö½Úµã Ê¹ÆäÓën×éºÏ,¼ÓÈë±äÇ¨¼¯ºÏ 
-	for (it_P = status.begin(); it_P != status.end(); it_P++)
+	while (pba != NULL)
 	{
-		outfile << "±éÀúµÃµ½µÄRGname:" << (*it_P).RGname << " BAname:" << (*it_P).BAname << endl;
-		//¸ù¾İ´«ÈëµÄ±äÁ¿À´¶¨Î»(·µ»ØÏÂ±ê)£¬ÁÙÊ±±äÁ¿idex±£´æ·µ»ØµÄÏÂ±ê
-		int idex = localRG(rg, (*it_P).RGname);
-
-		//ÒÔidexÎªÆğµãÈ¥³¢ÊÔ 	 
-		prg = rg.rgnode[idex].firstEdge;//prgÖ¸Ïòidex½ÓÏÂÈ¥µÄµÚÒ»¸ö½Úµã 
-
+		prg = rg.rgnode[q.RGname_id].firstEdge;//prgÖ¸Ïòidex½ÓÏÂÈ¥µÄµÚÒ»¸ö½Úµã 
 		while (prg != NULL)
 		{
-			if (prg->target == i) //ÔÚ¿É´ïÍ¼ÖĞÕÒµ½ 
+			if (isLabel(prg->target, pba->adjvex))//petriÍø ¿É´ïÍ¼ ×Ô¶¯»ú ¿É´ïÍ¼ĞòºÅ ×Ô¶¯»úĞòºÅ
 			{
-				flag_v = true;
-				break;
+				Product qs;                                   //Éú³ÉÒ»¸ö×´Ì¬½ÚµãN 
+				qs.BAname_id = pba->adjvex;
+				qs.RGname_id = prg->target;
+				if (h.search(qs) != 1)//
+				{
+					dfs1(qs);
+				}
+				if (ba.svertics[q.BAname_id].isAccept)//p¿É½ÓÊÜ
+				{
+					dfs2(qs);
+				}
+				if (!result || !timeflag)
+					return;
 			}
-			else
-				prg = prg->nextedge;
+			prg = prg->nextedge;
 		}
-		if (prg == NULL)
-			flag_v = false;//Î´ÕÒµ½ 
-
-
-		//ÓÃ´«¹ıÀ´µÄj  ÒÔ¼° status¼¯ºÏ±éÀúµÃµ½µÄBAname  ÅĞ¶ÏÆäÊÇ·ñÊÇ×Ô¶¯»úµÄÇ¨ÒÆ£¬¼´ÔÚÁÚ½Ó±íÖĞÅĞ¶Ï 
-		idex = localBA(ba, (*it_P).BAname);//ÁÙÊ±±äÁ¿idex±£´æ·µ»ØµÄÏÂ±ê
-
-		//ÒÔidexÎªÆğµã  È¥Ñ°ÕÒÊÇ·ñ´æÔÚt 
-		pba = ba.svertics[idex].firstarc;
-		//cout << "ba.vertics[idex]:"<< ba.vertics[idex].data  << endl;
-		while (pba != NULL)
-		{
-			if (pba->adjvex == j) //ÔÚ×Ô¶¯»úÁÚ½Ó±íÖĞÕÒµ½ 
-			{
-				flag_s = true;
-				break;
-			}
-			pba = pba->nextarc;
-		}
-		if (pba == NULL)
-			flag_s = false;//Î´ÕÒµ½ 
-
-
-		if (flag_v && flag_s) //Èô¶¼·ûºÏ Ôò½»×Ô¶¯»úµÄÇ¨ÒÆ¹ØÏµ¼¯ºÏ ĞÂÔö 
-		{
-			T t;//ÁÙÊ±±äÁ¿ 
-			t.s = (*it_P);
-			t.e = n;
-			transition.insert(t);//Ôö¼ÓÇ¨ÒÆ¹ØÏµ 
-			outfile << " ÉÏÊöÂú×ãÌõ¼ş,Ìí¼Óµ½T¼¯ºÏÖĞ,ÆğµãµÄid:" << t.s.id << " ÖÕµãµÄid:" << t.e.id << endl;
-		}
+		pba = pba->nextarc;
 	}
-	outfile << "\n\n\n";
+	stack.pop_back();//É¾³ı×îºóÒ»¸ö  stackÕ»¶¥³öÕ¾;
+
 }
 
-void  Product_Automata::addinitial_status(SBA ba,int i, int j, Product n)//Ôö¼Ó³õÊ¼×´Ì¬ 
+
+void Product_Automata::dfs2(Product q)
+{
+	if(!timeflag)return ;
+	flag.push_back(q);//½«´«ÈëµÄq½øĞĞ±ê¼Ç
+	SArcNode *pba = new SArcNode;        //Ö¸ÏòBa×Ô¶¯»úµÄÁÚ½Ó±íµÄ½Úµã (·ÇÍ·½Úµã) 
+	PRGEdge prg = new RGEdge;          //Ö¸Ïò¿É´ïÍ¼ÁÚ½Ó±íµÄ½Úµã
+	pba = ba.svertics[q.BAname_id].firstarc;
+	prg = rg.rgnode[q.RGname_id].firstEdge;//prgÖ¸Ïòidex½ÓÏÂÈ¥µÄµÚÒ»¸ö½Úµã 
+	while (pba != NULL )
+	{
+		prg = rg.rgnode[q.RGname_id].firstEdge;
+		while (prg != NULL)
+		{
+			bool stackfound = false;
+			bool flagfound = false;
+			if (isLabel(prg->target, pba->adjvex))
+			{
+				vector<Product>::iterator stackit;
+				vector<Product>::iterator flagit;
+				Product qs;                                   //Éú³ÉÒ»¸ö×´Ì¬½ÚµãN 
+				
+				qs.BAname_id = pba->adjvex;
+				qs.RGname_id = prg->target;
+
+				//ÅĞ¶ÏÊÇ·ñÔÚstackÕ»ÖĞ
+				for (stackit = stack.begin(); stackit != stack.end(); stackit++)
+				{
+					if (stackit->BAname_id == qs.BAname_id && stackit->RGname_id == qs.RGname_id)
+					{
+						stackfound = true;
+					}
+				}
+				//ÅĞ¶ÏÊÇ·ñÔÚflagÖĞ
+				for (flagit = flag.begin(); flagit != flag.end(); flagit++)
+				{
+					if (flagit->BAname_id == qs.BAname_id && flagit->RGname_id == qs.RGname_id)
+					{
+						flagfound = true;
+					}
+				}
+				if (stackfound)
+				{
+					result = false;
+					return;
+				}
+				//qsÎ´±»±ê¼Ç
+				else if (!flagfound)
+				{
+					dfs2(qs);
+				}
+
+			}
+			prg = prg->nextedge;
+			
+		}
+		pba = pba->nextarc;
+		
+	}
+	//flag.pop_back();//È¡Ïû±ê¼Ç   £¡£¡£¡£¡£¡£¡£¡²»ÖªµÀĞè²»ĞèÒª¼Ó
+
+}
+
+
+
+
+
+void  Product_Automata::addinitial_status()//Ôö¼Ó³õÊ¼×´Ì¬ 
 {
 
-	if (ba.svertics[i].isInitial==true && j == 0)//Èôi´ú±íµÄ¿É´ïÍ¼½Úµã  Óë j´ú±íµÄ¿É´ïÍ¼½Úµã  ¶¼ÊÇ¸ù½Úµã£¨³õÊ¼×´Ì¬½Úµã£© 
-	{
-		initial_status.insert(n);
-	}
+	for (int i = 0; i < ba.svex_num; i++)//±éÀú×Ô¶¯»úÃ¿Ò»¸ö½Úµã  iÊÇ×Ô¶¯»ú jÊÇ¿É´ïÍ¼
+		if (ba.svertics[i].isInitial)//Èôi´ú±íµÄ¿É´ïÍ¼½Úµã  Óë j´ú±íµÄ¿É´ïÍ¼½Úµã  ¶¼ÊÇ¸ù½Úµã£¨³õÊ¼×´Ì¬½Úµã£© 
+		{
+			int j = 0;
+			if (isLabel(j, i))
+			{
+				Product N;                                   //Éú³ÉÒ»¸ö×´Ì¬½ÚµãN 
+				
+				N.BAname_id = i;
+				N.RGname_id = j;                            //½»×Ô¶¯»úµÄĞòºÅ+1 
+				initial_status.push_back(N);
+				//status.push_back(N);
+			}
+
+		}
 }
 
-void  Product_Automata::addisaccept(SBA ba, int i, Product n)//Ôö¼Ó¿É½ÓÊÜ×´Ì¬ 
-{
-	//¿É´ïÍ¼µÄÃ¿Ò»¸ö½ÚµãÄ¬ÈÏÊÇ¿É½ÓÊÜ×´Ì¬ £¬ËùÒÔÖ»ĞèÒª¿¼ÂÇ×Ô¶¯»ú²¿·Ö  	
-	bool flag = ba.svertics[i].isAccept;//ÅĞ¶ÏÆäÊÇ·ñÊÇ¿É½ÓÊÜ×´Ì¬ 
-	if (flag)
-	{
-		isaccept.insert(n);
-	}
-}
 
-bool isLabel(Petri ptnet, RG rg, SBA ba, int vi, int sj, ofstream &ofe)//viÊÇ¿É´ïÍ¼µÄÏÂ±ê sjÊÇ×Ô¶¯»úµÄÏÂ±ê 
+bool Product_Automata::isLabel( int vi, int sj)//viÊÇ¿É´ïÍ¼µÄÏÂ±ê sjÊÇ×Ô¶¯»úµÄÏÂ±ê 
 {
 
 	string str = ba.svertics[sj].label;//±£´æ×Ô¶¯»ú½ÚµãÉÏÃüÌâ 
@@ -431,14 +471,14 @@ bool isLabel(Petri ptnet, RG rg, SBA ba, int vi, int sj, ofstream &ofe)//viÊÇ¿É´
 	while (1)
 	{
 		int pos = str.find_first_of("&&");
-		ofe << "RGĞòºÅ:" << vi << " BAĞòºÅ:" << sj << " BAµÄlabel:" << str << endl;
+		//ofe << "RGĞòºÅ:" << vi << " BAĞòºÅ:" << sj << " BAµÄlabel:" << str << endl;
 		if (pos == string::npos)//´¦Àí×îºóÒ»¸ö 
 		{
 			//cout<<str;
 			if (judgeF(str))//FÃüÌâ 
 			{
 				//cout<<"FÃüÌâ"; 
-				mark = handleFLTLF(ptnet, rg, str, vi);
+				mark = handleFLTLF(str, vi);
 				if (mark == true)
 				{
 					break;//Ìø³öwhileÑ­»·  
@@ -446,7 +486,7 @@ bool isLabel(Petri ptnet, RG rg, SBA ba, int vi, int sj, ofstream &ofe)//viÊÇ¿É´
 			}
 			else {//cÃüÌâ 
 				//cout<<"cÃüÌâ";
-				mark = handleLTLC(ptnet, rg, str, vi, ofe);
+				mark = handleLTLC( str, vi);
 				if (mark == true)
 				{
 					break;//Ìø³öwhileÑ­»·  
@@ -461,7 +501,7 @@ bool isLabel(Petri ptnet, RG rg, SBA ba, int vi, int sj, ofstream &ofe)//viÊÇ¿É´
 		if (judgeF(subprop))//FÃüÌâ 
 		{
 			//	cout<<"FÃüÌâ"; 
-			mark = handleFLTLF(ptnet, rg, subprop, vi);
+			mark = handleFLTLF(subprop, vi);
 			if (mark == true)//¼´ÕÒµ½Ò»¸öÃüÌâ ³ÉÁ¢ Ìø³öÑ­»·   
 			{
 				break;
@@ -470,171 +510,84 @@ bool isLabel(Petri ptnet, RG rg, SBA ba, int vi, int sj, ofstream &ofe)//viÊÇ¿É´
 		else//cÃüÌâ 
 		{
 			//	cout<<"cÃüÌâ"; 
-			mark = handleLTLC(ptnet, rg, subprop, vi, ofe);
+			mark = handleLTLC(subprop, vi);
 			if (mark == true)//¼´ÕÒµ½Ò»¸öÃüÌâ ³ÉÁ¢ Ìø³öÑ­»·   
 			{
 				break;
 			}
 		}
 		//cout<<endl;
-		str = str.substr(pos + 2, str.length() - pos);
+		str = str.substr(pos + 2, str.length() - pos -2);
 	}
 
 	if (mark == true)//ÓĞÒ»¸öÃüÌâ³ÉÁ¢ÁË
 	{
 
-		ofe << "½»Îªfalse" << endl << endl;
+		//ofe << "½»Îªfalse" << endl << endl;
 		return false;
 	}
 
 	else //ËùÓĞÃüÌâ¶¼²»³ÉÁ¢ markÒ»Ö±ÊÇfalse£¬ Âú×ãÁË·Çfalse  
 	{
-		ofe << "½»Îª·Çfalse Éú³É½Úµã" << endl << endl;
+		//ofe << "½»Îª·Çfalse Éú³É½Úµã" << endl << endl;
 		return true;
 	}
 
 }
 
-void add_edge(int u, int v)//Í¨¹ıÇ¨ÒÆ¹ØÏµ ´æ´¢½»×Ô¶¯»úµÄÍ¼ 
+
+
+Product_Automata::Product_Automata()
 {
-	//Á´Ê½Ç°ÏòĞÇ´æ´¢ 
-
-
-	edge[tot].to = v;
-
-	edge[tot].next = heads[u];
-
-	heads[u] = tot++;
+	
 }
 
-void Product_Automata::garbowbfs(int cur, int temper)//´ú±íµÚ¼¸¸öµãÔÚ´¦Àí¡£µİ¹éµÄÊÇµã¡£
+
+void Product_Automata::ModelChecker(Petri p, RG g, SBA s, string propertyid,int timeleft)
 {
-	 if (!result)
-	 {
-		 return;
-	 }
-	stk[++cn] = cur;
-
-	stk2[++cm] = cur;
-
-	low[cur] = ++lay;
-
-	for (int i = heads[cur]; ~i; i = edge[i].next) {
-
-		int v = edge[i].to;
-
-		if (!low[v]) {
-
-			garbowbfs(v, lay);
-
-		}
-		else if (!belg[v]) {
-
-			while (low[stk2[cm]] > low[v]) {
-
-				cm--;
-
-			}
-
-		}
-
-	}
-
-	if (stk2[cm] == cur && result) 
-	{
-
-		bool flag = false;//±ê¼Ç½ÚµãÊÇ·ñÊÇ¿É½ÓÊÜ×´Ì¬ 
-		cm--;
-
-		scc++;
-		
-
-		   //sccÊÇĞòºÅ 
-		do {
-
-			//printf("%d ",stk[cn]);
-			cout << stk[cn] << " ";
-			it = isAccept_id.find(stk[cn]);
-
-			if (it != isAccept_id.end())//ÔÚ¿É½ÓÊÜ×´Ì¬¼¯ºÏÖĞÕÒµ½´Ëid
-			{
-				flag = true;
-			}
-			belg[stk[cn]] = scc;
-
-		} while (stk[cn--] != cur);
-		if (flag )
-		{
-			cout << "°üº¬¿É½ÓÊÜ×´Ì¬" << endl;
-			result = false;
-
-		}
-
-		cout << endl;
-		
-	}
-	return;
-
-}
-void Product_Automata::ModelChecker(Petri ptnet, RG rg, SBA ba)
-{
-	memset(heads, -1, sizeof(heads));//³õÊ¼»¯ ½«heads[]Êı×é³õÊ¼»¯Îª-1 
+	signal(SIGALRM, sig_handler);
+	cout<<"each_lefttime:"<<timeleft<<endl;
+    alarm(timeleft);
+	ptnet = p;
+	rg = g;
+	ba = s;
+	timeflag=true; 
 	result = true;//ËÑË÷½á¹û¿ªÊ¼Ä¬ÈÏÎªtrue
-	getProduct(ptnet, rg, ba);
-	int x, y;//¶ÁÈë±ßx->y 
-	//Éú³ÉÒ»¸öset¼¯ºÏ ÀïÃæÊÇ¿É½ÓÊÜ×´Ì¬µÄid 
-	int ct = 0;
-	for (it_P = isaccept.begin(); it_P != isaccept.end(); it_P++)
+	getProduct();
+	//cout<<"ok \n";
+	
+	string re;
+	if(timeflag)
 	{
-		cout << "id:" << (*it_P).id << " BAname:" << (*it_P).BAname << " RGname:" << (*it_P).RGname << endl;
-		ct++;
-		isAccept_id.insert((*it_P).id);
+		if(result)
+		{
+		re="TRUE";
+		}
+		else 
+		{
+		re="FALSE";
+		}
+		
+	cout<<"FORMULA "+propertyid+" "+re<<endl;
+		
 	}
-	cout << "¿É½ÓÊÜ×´Ì¬µÄ¸öÊı:" << ct << endl;
-	ct = 0;
-	for (it_P = status.begin(); it_P != status.end(); it_P++)
-	{
-		// cout << (*it_P).id<<endl;
-		ct++;
-	}
-	cout << "ËùÓĞ×´Ì¬µÄ¸öÊı:" << ct << endl;
-	//cout << "±ßµÄ¹ØÏµ¼¯ºÏ£º\n";
-	for (it_T = transition.begin(); it_T != transition.end(); it_T++)
-	{
-		x = (*it_T).s.id;
-		y = (*it_T).e.id;
-
-		cout << "<" << x << "," << y << ">" << endl;
-		add_edge(x, y);//µ÷ÓÃadd()º¯Êı Éú³ÉÁ´Ê½Ç°ÏòĞÇ´æ´¢  
-	}
-	//±éÀú³õÊ¼×´Ì¬µÄ¼¯ºÏ £¬´Ó³õÊ¼×´Ì¬³ö·¢ 
-
-	scc = lay = 0;
-
-	memset(belg, 0, sizeof(belg));
-
-	memset(low, 0, sizeof(low));
-
-
-	cout << "³õÊ¼×´Ì¬¼¯ºÏ£º";
-	for (it_P = initial_status.begin(); it_P != initial_status.end(); it_P++)
-	{
-		int t = (*it_P).id;
-		cout << t << endl;
-		if (!low[t])
-			garbowbfs(t, lay);//µ±Õâ¸öµãÃ»ÓĞ·ÃÎÊ¹ı£¬¾Í´Ó´Ëµã¿ªÊ¼¡£·ÀÖ¹½»×Ô¶¯»úÓĞÏòÍ¼Ã»×ßÍê
-	}
-	/*for (int i = 1; i <= 24; i++)
-	{
-		if (!DFN[i])
-			tarjan(i);
-	}*/
-	if (result)
-	{
-		cout << "\nresult:true\n";
-	}
-	else
-		cout << "\nresult:false\n";
-
+	else cout<<"FORMULA "+propertyid+" "+"CANNOT COMPUTE"<<endl;
+	cout<<"======================================================"<<endl;
+	alarm(0);
+	//initate_array();
+	/*delete[] DFN;
+	delete[] LOW;
+	delete[] stack;
+	delete[] visit;
+	delete[] edge;
+	delete[] heads;*/
 	return;
 }
+
+
+Product_Automata::~Product_Automata()
+{
+
+}
+
+

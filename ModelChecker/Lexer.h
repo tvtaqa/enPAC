@@ -30,7 +30,7 @@ typedef struct Lexer_word
 class Lexer
 {
 private:
-	char formula[500];
+	char formula[10000];
 	int pointer;
 	int length;
 public:

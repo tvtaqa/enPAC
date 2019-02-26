@@ -290,8 +290,8 @@ void TGBA::CreatTGBA(formula_stack Ustack, ST_Node *root)
 			{
 				CF_Tree CFT;
 				CFT.CFBuilder(iter->form.loc[i]);
-				CFT.PrintCFTree(CFT.root->nleft, CFT.root->lleft, 0);
-				cout << endl;
+				//CFT.PrintCFTree(CFT.root->nleft, CFT.root->lleft, 0);
+				//cout << endl;
 				if (CFT.root->nleft != NULL)
 				{
 					CFT.Disjunction(CFT.root->nleft);

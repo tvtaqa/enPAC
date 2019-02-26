@@ -122,7 +122,7 @@ int Lexer::GetWord(word &w)
 		return $End;
 	}
 	case '{': {
-		char p[100];
+		char p[10000];
 		int i = 0;
 		while (formula[pointer-1]!='}')
 		{

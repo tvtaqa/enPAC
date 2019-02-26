@@ -258,6 +258,10 @@ void Syntax_Tree::build_tree()
 		cur->left = NULL;
 		cur = cur->right;
 	}
+	else if (cur->ctype == AP)
+	{
+		cur->left = cur->right = NULL;
+	}
 	while (Operand.pop_ls(temp))
 	{
 		cur->character = temp.w.character;
@@ -1051,8 +1055,8 @@ void CF_Tree::CFBuilderSub(CFTreeNode *&ctn, CFTreeLeaf *&ctl, ST_Node *stn)
 		ctl = new CFTreeLeaf;
 		ctl->relevant = stn;
 		//ctl->trscod.insert("true");
-		if (!ctl->xstate.isExist(stn))
-			ctl->xstate.insert(stn);
+		if (!ctl->xstate.isExist(stn->left))
+			ctl->xstate.insert(stn->left);
 	}
 }
 void CF_Tree::PrintCFTree(CFTreeNode *ctn, CFTreeLeaf *ctl, int n)

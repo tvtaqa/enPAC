@@ -9,7 +9,7 @@ typedef struct SArcNode
 }SArcNode;
 typedef struct SVNode
 {
-	SVertexType data;		 //顶点（状态）
+	SVertexType data=-1;		 //顶点（状态）
 	bool isAccept;           //该状态是否为可接受状态
 	bool isInitial;              //该状态是否为
 	set<int> incoming;      //该状态的前集
