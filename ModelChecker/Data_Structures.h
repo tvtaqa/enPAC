@@ -3,11 +3,12 @@
 #include<string>
 #include<vector>
 #include<set>
+#include<algorithm>
 #include"Lexer.h"
 using namespace std;
-#define max_set_num 100                //Old, New, Next中集合元素最大个数
-#define max_incoming 100
-#define max_nodes_num 100
+#define max_set_num 1000               //Old, New, Next中集合元素最大个数
+#define max_incoming 1000
+#define max_nodes_num 1000
 
 class state_stack;
 /******************************语法树用到的数据结构***********************************/
